@@ -18,13 +18,15 @@ class UrlRenderer:
 
     @staticmethod
     def render(path: Path) -> RenderedView:
-        try:
-            url = path.read_text(encoding='utf-8').strip()
-        except Exception as e:
-            raise RuntimeError(f'Failed to read {path}: {e}')
+        text = path.read_text(encoding='utf-8', errors='ignore')
 
-        if not url:
-            raise ValueError(f'Empty URL file: {path}')
+        for line in text.splitlines():
+            if line.startswith('URL='):
+                url = line[4:].strip()
+                break
+
+        else:
+            raise ValueError(f'No URL= found in {path}')
 
         return RenderedView(
             kind='iframe',

@@ -31,7 +31,7 @@ def player():
 @app.get('/playlist')
 def playlist() -> list[RenderedView]:
     """ Build the rotation playlist from filesystem content. """
-    views = list[RenderedView] = []
+    views: list[RenderedView] = []
 
     for path in sorted(ROTATION_DIR.iterdir()):
         if not path.is_file():

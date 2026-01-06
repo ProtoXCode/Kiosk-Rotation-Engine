@@ -1,6 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Literal, Protocol
+from typing import Literal, Protocol, Any
 
 
 @dataclass
@@ -8,6 +8,7 @@ class RenderedView:
     kind: Literal['iframe', 'image', 'video']
     src: str
     duration: int = 15  # TODO: Replace with config loader
+    meta: dict[str, Any] = field(default_factory=dict)
 
 
 class Renderer(Protocol):

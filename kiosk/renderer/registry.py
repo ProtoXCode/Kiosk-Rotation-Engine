@@ -6,14 +6,15 @@ from .html import HtmlRenderer
 from .image import ImageRenderer
 
 RENDERERS = [
-    UrlRenderer(),
-    HtmlRenderer(),
+    # UrlRenderer(),
+    # HtmlRenderer(),
     ImageRenderer()
 ]
 
 
 def render_path(path: Path) -> RenderedView:
     for r in RENDERERS:
-        if r.can_render(path):
+        if r.can_handle(path):
             return r.render(path)
+
     raise ValueError(f'No renderer for {path}')

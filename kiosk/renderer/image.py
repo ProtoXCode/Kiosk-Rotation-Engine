@@ -17,10 +17,8 @@ class ImageRenderer:
 
     @staticmethod
     def render(path: Path) -> RenderedView:
-        src = f'/rotation/{path.name}'
-
         return RenderedView(
             kind='image',
-            src=src,
+            src=f'/rotation/{path.name}',
             duration=20
         )
