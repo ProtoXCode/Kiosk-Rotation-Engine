@@ -25,5 +25,5 @@ class HtmlRenderer:
         return RenderedView(
             kind='iframe',
             src=src,
-            duration=15
+            duration=10
         )

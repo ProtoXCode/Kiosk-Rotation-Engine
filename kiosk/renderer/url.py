@@ -31,5 +31,5 @@ class UrlRenderer:
         return RenderedView(
             kind='iframe',
             src=url,
-            duration=5
+            duration=10
         )
