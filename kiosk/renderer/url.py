@@ -14,7 +14,7 @@ class UrlRenderer:
     EXTENSIONS = {'.url'}
 
     def can_handle(self, path: Path) -> bool:
-        return path.suffix.lower() in self.EXTENSIONS
+        return path.is_file() and path.suffix.lower() in self.EXTENSIONS
 
     @staticmethod
     def render(path: Path) -> RenderedView:
@@ -31,5 +31,5 @@ class UrlRenderer:
         return RenderedView(
             kind='iframe',
             src=url,
-            duration=15
+            duration=5
         )

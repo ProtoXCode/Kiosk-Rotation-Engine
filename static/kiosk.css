@@ -8,12 +8,36 @@ body {
 }
 
 .kiosk-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.kiosk-image,
+.kiosk-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }
 
 .kiosk-image {
+  object-fit: contain;
+  z-index: 1;
+}
+
+.kiosk-video {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  z-index: 2;
+}
+
+.kiosk-frame {
+  border: none;
+  z-index: 2;
 }

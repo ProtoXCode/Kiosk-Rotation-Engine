@@ -1,14 +1,16 @@
 from pathlib import Path
 
 from .base import RenderedView
+from .video import VideoRenderer
 from .url import UrlRenderer
 from .html import HtmlRenderer
 from .image import ImageRenderer
 
 RENDERERS = [
-    # UrlRenderer(),
-    # HtmlRenderer(),
-    ImageRenderer()
+    ImageRenderer(),
+    VideoRenderer(),
+    UrlRenderer(),
+    HtmlRenderer(),
 ]
 
 

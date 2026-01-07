@@ -20,5 +20,5 @@ class ImageRenderer:
         return RenderedView(
             kind='image',
             src=f'/rotation/{path.name}',
-            duration=20
+            duration=5
         )

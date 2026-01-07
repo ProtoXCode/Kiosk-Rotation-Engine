@@ -20,7 +20,7 @@ class HtmlRenderer:
     def render(path: Path) -> RenderedView:
         # The app decides how paths are exposed over HTTP
         # Render only declares intent
-        src = f'/rotation{path.name}'
+        src = f'/rotation/{path.name}'
 
         return RenderedView(
             kind='iframe',
