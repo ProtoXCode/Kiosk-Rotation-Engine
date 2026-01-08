@@ -5,9 +5,12 @@ from .video import VideoRenderer
 from .url import UrlRenderer
 from .html import HtmlRenderer
 from .image import ImageRenderer
+from .heic import HeicRenderer
 from kiosk.config import TimingConfig
 
+# Processing renderes above generic ones.
 RENDERERS = [
+    HeicRenderer(),  # Processed using pillow-heif
     ImageRenderer(),
     VideoRenderer(),
     UrlRenderer(),

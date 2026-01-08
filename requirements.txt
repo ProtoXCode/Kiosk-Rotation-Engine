@@ -1,3 +1,5 @@
 fastapi
 pyyaml
 uvicorn
+pillow
+pillow-heif

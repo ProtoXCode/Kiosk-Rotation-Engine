@@ -52,6 +52,7 @@ def load_config(path: Path) -> AppConfig:
         return default
 
     data = yaml.safe_load(path.read_text()) or {}
+    logger.info(f'Using config file: {path.resolve()}')
 
     rotation = data.get('rotation', {})
 

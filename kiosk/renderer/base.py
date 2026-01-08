@@ -11,6 +11,7 @@ class RenderedView:
     src: str
     duration: int = TimingConfig.default_duration
     meta: dict[str, Any] = field(default_factory=dict)
+    consumes_source: bool = False
 
 
 class Renderer(Protocol):
