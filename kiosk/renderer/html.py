@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from .base import RenderedView
+from kiosk.config import TimingConfig
 
 
 class HtmlRenderer:
@@ -17,7 +18,7 @@ class HtmlRenderer:
         return path.is_file() and path.suffix.lower() in self.EXTENSIONS
 
     @staticmethod
-    def render(path: Path) -> RenderedView:
+    def render(path: Path, timing: TimingConfig) -> RenderedView:
         # The app decides how paths are exposed over HTTP
         # Render only declares intent
         src = f'/rotation/{path.name}'
@@ -25,5 +26,5 @@ class HtmlRenderer:
         return RenderedView(
             kind='iframe',
             src=src,
-            duration=10
+            duration=timing.default_duration  # TODO
         )

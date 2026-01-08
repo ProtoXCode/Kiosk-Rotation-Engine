@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from .base import RenderedView
+from kiosk.config import TimingConfig
 
 
 class VideoRenderer:
@@ -10,13 +11,13 @@ class VideoRenderer:
         return path.is_file() and path.suffix.lower() in self.EXTENSIONS
 
     @staticmethod
-    def render(path: Path) -> RenderedView:
+    def render(path: Path, timing: TimingConfig) -> RenderedView:
         return RenderedView(
             kind='video',
             src=f'/rotation/{path.name}',
             duration=0,  # Plays entire video
             meta={
                 'autoplay': True,
-                'muted': True
+                'muted': timing.video_mute
             }
         )

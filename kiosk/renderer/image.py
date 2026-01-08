@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from .base import RenderedView
+from kiosk.config import TimingConfig
 
 
 class ImageRenderer:
@@ -16,9 +17,9 @@ class ImageRenderer:
         return path.is_file() and path.suffix.lower() in self.EXTENSIONS
 
     @staticmethod
-    def render(path: Path) -> RenderedView:
+    def render(path: Path, timing: TimingConfig) -> RenderedView:
         return RenderedView(
             kind='image',
             src=f'/rotation/{path.name}',
-            duration=5
+            duration=timing.image_duration
         )

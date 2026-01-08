@@ -6,8 +6,14 @@ from fastapi.staticfiles import StaticFiles
 
 from kiosk.renderer.registry import render_path
 from kiosk.renderer.base import RenderedView
+from kiosk.logger import logger
+from kiosk.config import load_config
 
-ROTATION_DIR = Path('rotation')
+BASE_DIR = Path(__file__).resolve().parent.parent
+CONFIG = load_config(BASE_DIR / 'config.yaml')
+TIMING = CONFIG.timing
+
+ROTATION_DIR = CONFIG.timing.media_directory
 STATIC_DIR = Path('static')
 
 app = FastAPI(title='Kiosk Rotation Engine')
@@ -38,10 +44,10 @@ def playlist() -> list[RenderedView]:
             continue
 
         try:
-            view = render_path(path)
+            view = render_path(path, TIMING)
             views.append(view)
         except Exception as e:
             # MVP rule: fail soft, never crash the kiosk
-            print(f'[WARN] Skipping {path.name}: {e}')
+            logger.info(f'Skipping {path.name}: {e}')
 
     return views

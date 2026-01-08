@@ -209,3 +209,4 @@ __marimo__/
 # Kiosk Rotation Engine
 /logs
 temp*
+config.yaml

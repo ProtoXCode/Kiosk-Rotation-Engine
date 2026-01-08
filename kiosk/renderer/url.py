@@ -1,6 +1,8 @@
 from pathlib import Path
 
 from .base import RenderedView
+from kiosk.logger import logger
+from kiosk.config import TimingConfig
 
 
 class UrlRenderer:
@@ -17,7 +19,7 @@ class UrlRenderer:
         return path.is_file() and path.suffix.lower() in self.EXTENSIONS
 
     @staticmethod
-    def render(path: Path) -> RenderedView:
+    def render(path: Path, timing: TimingConfig) -> RenderedView:
         text = path.read_text(encoding='utf-8', errors='ignore')
 
         for line in text.splitlines():
@@ -26,10 +28,11 @@ class UrlRenderer:
                 break
 
         else:
+            logger.warning(f'No URL found in {path}')
             raise ValueError(f'No URL= found in {path}')
 
         return RenderedView(
             kind='iframe',
             src=url,
-            duration=10
+            duration=timing.default_duration  # TODO
         )
