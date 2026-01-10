@@ -5,7 +5,7 @@ from kiosk.config import TimingConfig
 
 
 class VideoRenderer:
-    EXTENSIONS = ['.mp4', '.webm', '.ogg']
+    EXTENSIONS = ['.mp4', '.webm']
 
     def can_handle(self, path: Path) -> bool:
         return path.is_file() and path.suffix.lower() in self.EXTENSIONS
