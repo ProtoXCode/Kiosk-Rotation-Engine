@@ -3,13 +3,14 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 import os
 
-os.makedirs(Path(__file__).resolve().parent / 'logs', exist_ok=True)
+BASE_DIR = Path(__file__).resolve().parent.parent
+os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
 logger = logging.getLogger('Kiosk')
 logger.setLevel(logging.INFO)
 
 file_handler = RotatingFileHandler(
-    filename=Path(__file__).resolve().parent / 'logs' / 'kiosk.log',
+    filename=BASE_DIR / 'logs' / 'kiosk.log',
     maxBytes=1024 * 1024,
     backupCount=5)
 
