@@ -1,7 +1,10 @@
 from pathlib import Path
 
-from .base import RenderedView
 from kiosk.config import TimingConfig
+from kiosk.logger import logger
+from kiosk.renderer.text_extractors.html import extract_text_from_html
+from .utils import estimate_duration
+from .base import RenderedView
 
 
 class HtmlRenderer:
@@ -21,10 +24,26 @@ class HtmlRenderer:
     def render(path: Path, timing: TimingConfig) -> RenderedView:
         # The app decides how paths are exposed over HTTP
         # Render only declares intent
-        src = f'/rotation/{path.name}'
+
+        text = extract_text_from_html(path)
+        word_count = len(text.split())
+
+        if word_count == 0:
+            duration = timing.default_duration
+            reason = 'default'
+        else:
+            duration = estimate_duration(word_count, timing)
+            reason = 'wpm'
+
+        logger.debug(f'HTML {path.name}: {word_count} words -> {duration}s')
 
         return RenderedView(
             kind='iframe',
-            src=src,
-            duration=timing.default_duration  # TODO
+            src=f'/rotation/{path.name}',
+            duration=duration,
+            meta={
+                'word_count': word_count,
+                'duration_reason': reason,
+                'autoscroll': True
+            }
         )

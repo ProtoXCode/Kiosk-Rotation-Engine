@@ -61,6 +61,57 @@ document.addEventListener("DOMContentLoaded", () => {
     showNext();
   }
 
+  /* ---------------- autoscroll ----------------- */
+
+  // Tested and works on Chrome, Edge and Opera. Firefox not so much...
+
+  function autoScroll(frame, duration) {
+    let doc;
+
+    try {
+      doc = frame.contentDocument;
+    } catch {
+      return; // cross-origin
+    }
+
+    if (!doc) return;
+
+    const scrollRoot =
+      doc.scrollingElement ||
+      doc.documentElement ||
+      doc.body;
+
+    if (!scrollRoot) return;
+
+    // Force overflow (some HTML disables it)
+    scrollRoot.style.overflowY = "auto";
+
+    // Wait for layout to settle
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const maxScroll =
+          scrollRoot.scrollHeight - frame.clientHeight;
+
+        if (maxScroll <= 0) return;
+
+        const start = performance.now();
+
+        function step(now) {
+          const elapsed = (now - start) / 1000;
+          const progress = Math.min(elapsed / duration, 1);
+
+          scrollRoot.scrollTop = maxScroll * progress;
+
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          }
+        }
+
+        requestAnimationFrame(step);
+      });
+    });
+  }
+
   /* ---------------- core player ---------------- */
 
   function showNext() {
@@ -86,6 +137,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (item.kind === "iframe") {
       frame.src = item.src;
       frame.style.display = "block";
+
+      frame.onload = () => {
+        try {
+          const doc = frame.contentDocument;
+          const root =
+          doc.scrollingElement ||
+          doc.documentElement ||
+          doc.body;
+
+      if (root) root.scrollTop = 0;
+      } catch {}
+
+      if (item.meta?.autoscroll) {
+        autoScroll(frame, item.duration);
+      }
+    };
 
       frame.onerror = () => advance(token);
       setTimeout(() => advance(token), item.duration * 1000);

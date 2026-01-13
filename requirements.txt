@@ -3,3 +3,4 @@ pyyaml
 uvicorn
 pillow
 pillow-heif
+beautifulsoup4
