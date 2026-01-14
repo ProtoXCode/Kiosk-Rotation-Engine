@@ -25,8 +25,7 @@ class HtmlRenderer:
         # The app decides how paths are exposed over HTTP
         # Render only declares intent
 
-        text = extract_text_from_html(path)
-        word_count = len(text.split())
+        word_count = extract_text_from_html(path)
 
         if word_count == 0:
             duration = timing.default_duration

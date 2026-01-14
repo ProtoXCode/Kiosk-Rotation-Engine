@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
 logger = logging.getLogger('Kiosk')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 file_handler = RotatingFileHandler(
     filename=BASE_DIR / 'logs' / 'kiosk.log',

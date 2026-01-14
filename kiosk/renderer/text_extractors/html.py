@@ -2,7 +2,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 
-def extract_text_from_html(path: Path) -> str:
+def extract_text_from_html(path: Path) -> int:
     """
     Extracts readable text from an HTML file.
 
@@ -16,11 +16,13 @@ def extract_text_from_html(path: Path) -> str:
     soup = BeautifulSoup(html, 'html.parser')
 
     # Remove non-content elements
-    for tag in soup(['script', 'style', 'noscript']):
+    for tag in soup(
+            ['script', 'style', 'noscript', 'nav', 'footer', 'header']):
         tag.decompose()
 
     # noinspection PyArgumentList
     text = soup.get_text(separator=' ')
 
     # Normalize whitespace
-    return ' '.join(text.split())
+    words = [w for w in text.split() if len(w) > 1]
+    return len(words)
