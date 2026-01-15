@@ -5,7 +5,7 @@ import threading
 import time
 
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from kiosk.renderer.registry import render_path
@@ -74,6 +74,10 @@ def playlist():
             'items': PLAYLIST
         }
 
+@app.get('/favicon.ico', include_in_schema=False)
+def favicon():
+    return FileResponse('static/favicon.ico')
+
 
 # Serve rotation content (html, images, rendered output later)
 app.mount('/rotation', StaticFiles(directory=ROTATION_DIR), name='rotation')
@@ -94,16 +98,20 @@ def build_playlist() -> list[RenderedView]:
             continue
 
         try:
-            view = render_path(path, TIMING)
+            result = render_path(path, TIMING)
         except Exception as e:
             logger.info(f'Skipping {path.name}: {e}')
             continue
 
-        if view.src in seen_srcs:
-            continue
+        # Normalize to list
+        rendered_views = result if isinstance(result, list) else [result]
 
-        seen_srcs.add(view.src)
-        views.append(view)
+        for view in rendered_views:
+            if view.src in seen_srcs:
+                continue
+
+            seen_srcs.add(view.src)
+            views.append(view)
 
     return views
 

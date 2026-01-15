@@ -4,3 +4,4 @@ uvicorn
 pillow
 pillow-heif
 beautifulsoup4
+pymupdf
