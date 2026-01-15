@@ -4,6 +4,7 @@ import pillow_heif
 
 from .base import RenderedView
 from kiosk.config import TimingConfig
+from kiosk.logger import logger
 
 
 class HeicRenderer:
@@ -21,7 +22,12 @@ class HeicRenderer:
     @staticmethod
     def render(path: Path, timing: TimingConfig) -> RenderedView:
         """ Convert once, cache result """
-        output = path.with_suffix('.jpg')
+        # rotation/.cache/<filename>
+        cache_root = path.parent / '.cache'
+        cache_dir = cache_root / path.stem
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        output = cache_dir / f'{path.stem}.jpg'
 
         if not output.exists() or output.stat().st_mtime < path.stat().st_mtime:
             heif_file = pillow_heif.read_heif(path)
@@ -35,7 +41,7 @@ class HeicRenderer:
 
         return RenderedView(
             kind='image',
-            src=f'/rotation/{output.name}',
+            src=f'/rotation/.cache/{path.stem}/{output.name}',
             duration=timing.image_duration,
             consumes_source=True
         )
