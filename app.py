@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from threading import Lock
 from pathlib import Path
 import threading
@@ -24,7 +25,55 @@ PLAYLIST_LOCK = Lock()
 # Prevent unsupported files to be analyzed
 SKIP_EXTENSIONS = ['.md']
 
-app = FastAPI(title='Kiosk Rotation Engine')
+
+# --- FastAPI -----------------------------------------------------------------
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    global PLAYLIST, PLAYLIST_VERSION
+
+    # --- Startup ---
+    initial = build_playlist()
+    with PLAYLIST_LOCK:
+        PLAYLIST = initial
+        PLAYLIST_VERSION += 1
+
+    logger.info(f'Initial playlist build: {len(PLAYLIST)} items')
+
+    interval = max(CONFIG.timing.playlist_scan, 5)
+    thread = threading.Thread(
+        target=playlist_watcher,
+        args=(interval,),
+        daemon=True
+    )
+    thread.start()
+
+    yield
+
+    # --- Shutdown ---
+    logger.info(f'Shutting down playlist watcher')
+
+
+app = FastAPI(lifespan=lifespan, title='Kiosk Rotation Engine')
+
+
+@app.get('/', response_class=HTMLResponse)
+def player():
+    """
+    Fullscreen kiosk player.
+    Broser is expected to run in kiosk / fullscreen mode.
+    """
+    return (STATIC_DIR / 'player.html').read_text(encoding='utf-8')
+
+
+@app.get('/playlist')
+def playlist():
+    with PLAYLIST_LOCK:
+        return {
+            'version': PLAYLIST_VERSION,
+            'items': PLAYLIST
+        }
+
 
 # Serve rotation content (html, images, rendered output later)
 app.mount('/rotation', StaticFiles(directory=ROTATION_DIR), name='rotation')
@@ -32,6 +81,8 @@ app.mount('/rotation', StaticFiles(directory=ROTATION_DIR), name='rotation')
 # Serve static assets (player.html, CSS, JS)
 app.mount('/static', StaticFiles(directory=STATIC_DIR), name='static')
 
+
+# --- App ---------------------------------------------------------------------
 
 def build_playlist() -> list[RenderedView]:
     """ Build the rotation playlist from filesystem content. """
@@ -74,42 +125,3 @@ def playlist_watcher(interval: int) -> None:
             logger.error(f'Error updating rotation playlist: {e}')
 
         time.sleep(interval)
-
-
-@app.on_event('startup')
-def start_playlist_watcher():
-    global PLAYLIST, PLAYLIST_VERSION
-
-    # Build once synchronously
-    initial = build_playlist()
-    with PLAYLIST_LOCK:
-        PLAYLIST = initial
-        PLAYLIST_VERSION += 1
-
-    logger.info(f'Initial playlist build: {len(PLAYLIST)} items')
-
-    interval = max(CONFIG.timing.playlist_scan, 5)
-    thread = threading.Thread(
-        target=playlist_watcher,
-        args=(interval,),
-        daemon=True
-    )
-    thread.start()
-
-
-@app.get('/', response_class=HTMLResponse)
-def player():
-    """
-    Fullscreen kiosk player.
-    Broser is expected to run in kiosk / fullscreen mode.
-    """
-    return (STATIC_DIR / 'player.html').read_text(encoding='utf-8')
-
-
-@app.get('/playlist')
-def playlist():
-    with PLAYLIST_LOCK:
-        return {
-            'version': PLAYLIST_VERSION,
-            'items': PLAYLIST
-        }
