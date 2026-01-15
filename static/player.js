@@ -37,10 +37,11 @@ document.addEventListener("DOMContentLoaded", () => {
     video.style.display = "none";
 
     img.src = "";
-    frame.src = "";
 
     video.pause();
-    video.src = "";
+    video.removeAttribute("src");
+    video.load();
+
     video.onended = null;
     video.onerror = null;
   }
@@ -50,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     index++;
 
+    // At wrap-around, refresh playlist once
     if (index >= playlist.length) {
       loadPlaylist().then(() => {
         index = 0;
@@ -59,57 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     showNext();
-  }
-
-  /* ---------------- autoscroll ----------------- */
-
-  // Tested and works on Chrome, Edge and Opera. Firefox not so much...
-
-  function autoScroll(frame, duration) {
-    let doc;
-
-    try {
-      doc = frame.contentDocument;
-    } catch {
-      return; // cross-origin
-    }
-
-    if (!doc) return;
-
-    const scrollRoot =
-      doc.scrollingElement ||
-      doc.documentElement ||
-      doc.body;
-
-    if (!scrollRoot) return;
-
-    // Force overflow (some HTML disables it)
-    scrollRoot.style.overflowY = "auto";
-
-    // Wait for layout to settle
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const maxScroll =
-          scrollRoot.scrollHeight - frame.clientHeight;
-
-        if (maxScroll <= 0) return;
-
-        const start = performance.now();
-
-        function step(now) {
-          const elapsed = (now - start) / 1000;
-          const progress = Math.min(elapsed / duration, 1);
-
-          scrollRoot.scrollTop = maxScroll * progress;
-
-          if (progress < 1) {
-            requestAnimationFrame(step);
-          }
-        }
-
-        requestAnimationFrame(step);
-      });
-    });
   }
 
   /* ---------------- core player ---------------- */
@@ -125,49 +76,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* IMAGE */
     if (item.kind === "image") {
-      img.src = item.src;
       img.style.display = "block";
-
       img.onerror = () => advance(token);
+
+      img.src = item.src;
+
       setTimeout(() => advance(token), item.duration * 1000);
       return;
     }
 
-    /* IFRAME */
+    /* IFRAME (HTML + PDF) */
     if (item.kind === "iframe") {
-      frame.src = item.src;
       frame.style.display = "block";
 
-      frame.onload = () => {
-        try {
-          const doc = frame.contentDocument;
-          const root =
-          doc.scrollingElement ||
-          doc.documentElement ||
-          doc.body;
-
-      if (root) root.scrollTop = 0;
-      } catch {}
-
-      if (item.meta?.autoscroll) {
-        autoScroll(frame, item.duration);
-      }
-    };
+      // Clear old handlers so they don't stack
+      frame.onload = null;
+      frame.onerror = null;
 
       frame.onerror = () => advance(token);
-      setTimeout(() => advance(token), item.duration * 1000);
+
+      frame.onload = () => {
+        // Start timing ONLY after iframe actually loads
+        setTimeout(() => advance(token), item.duration * 1000);
+      };
+
+      // Set src last (after handlers) so we don't miss events
+      frame.src = item.src;
       return;
     }
 
     /* VIDEO */
     if (item.kind === "video") {
-      video.src = item.src;
-      video.muted = item.meta?.muted ?? true;
       video.style.display = "block";
+      video.muted = item.meta?.muted ?? true;
 
       video.onended = () => advance(token);
       video.onerror = () => advance(token);
 
+      video.src = item.src;
       video.play().catch(() => advance(token));
       return;
     }
@@ -179,8 +125,6 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------- BOOTSTRAP ---------------- */
 
   loadPlaylist().then(() => {
-    if (playlist.length > 0) {
-      showNext();
-    }
+    if (playlist.length > 0) showNext();
   });
 });
