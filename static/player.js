@@ -113,6 +113,10 @@ document.addEventListener("DOMContentLoaded", () => {
       video.onended = () => advance(token);
       video.onerror = () => advance(token);
 
+      if (item.duration >= 0) {
+        setTimeout(() => advance(token), item.duration * 1000);
+      }
+
       video.src = item.src;
       video.play().catch(() => advance(token));
       return;

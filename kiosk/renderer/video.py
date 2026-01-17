@@ -15,7 +15,7 @@ class VideoRenderer:
         return RenderedView(
             kind='video',
             src=f'/rotation/{path.name}',
-            duration=0,  # Plays entire video
+            duration=-1,  # Plays entire video
             meta={
                 'autoplay': True,
                 'muted': timing.video_mute

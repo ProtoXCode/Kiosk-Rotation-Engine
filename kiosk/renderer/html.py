@@ -2,7 +2,7 @@ from pathlib import Path
 
 from kiosk.config import TimingConfig
 from kiosk.logger import logger
-from kiosk.renderer.text_extractors.html import extract_text_from_html
+from kiosk.renderer.extractors.html_text import extract_text_from_html
 from .utils import estimate_duration
 from .base import RenderedView
 
