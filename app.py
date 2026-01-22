@@ -74,6 +74,7 @@ def playlist():
             'items': PLAYLIST
         }
 
+
 @app.get('/favicon.ico', include_in_schema=False)
 def favicon():
     return FileResponse('static/favicon.ico')
@@ -103,10 +104,18 @@ def build_playlist() -> list[RenderedView]:
             logger.info(f'Skipping {path.name}: {e}')
             continue
 
-        # Normalize to list
-        rendered_views = result if isinstance(result, list) else [result]
+        # Normalize result to a list
+        if isinstance(result, list):
+            rendered_items = result
+        else:
+            rendered_items = [result]
 
-        for view in rendered_views:
+        for view in rendered_items:
+            # Ignore empty or broken renders
+            if not view or not view.src:
+                continue
+
+            # Prevent duplicates (important with cached files)
             if view.src in seen_srcs:
                 continue
 

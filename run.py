@@ -15,11 +15,21 @@ def check_runtime_environment() -> None:
     if system == 'Linux':
         # libheif is required for pillow-heif
         if shutil.which('heif-convert') is None:
-            logger.warning(
-                'HEIC support may be unavailable. '
-                'On Linux, install libheif-dev / libheif-tools.')
+            logger.warning('HEIC requires libheif tools on Linux. '
+                           '(libheif-dev / libheif-tools')
         else:
             logger.info('HEIC tools detected')
+
+        if not any(shutil.which(cmd) for cmd in ('libreoffice', 'soffice')):
+            logger.warning('Office files requires libreoffice tools')
+        else:
+            logger.info('LibreOffice detected')
+
+    elif system == 'Windows':
+        if shutil.which('libreoffice') is None:
+            logger.warning('Office files requires libreoffice tools')
+        else:
+            logger.info('libreOffice detected')
 
 
 def get_lan_ip() -> str:

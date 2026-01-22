@@ -7,12 +7,14 @@ from .url import UrlRenderer
 from .html import HtmlRenderer
 from .image import ImageRenderer
 from .heic import HeicRenderer
+from .office import OfficeRenderer
 from .pdf_image import PdfImageRenderer
 from kiosk.config import TimingConfig
 
 # Processing renderes above generic ones.
 RENDERERS = [
     HeicRenderer(),  # Processed using pillow-heif
+    OfficeRenderer(),  # Processes office files into PDF
     PdfImageRenderer(),  # Processed using pymupdf
     ImageRenderer(),
     VideoRenderer(),
