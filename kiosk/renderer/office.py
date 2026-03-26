@@ -11,7 +11,9 @@ class OfficeRenderer:
     EXTENSIONS = {
         '.doc', '.docx',
         '.ppt', '.pptx',
-        '.xls', '.xlsx'
+        '.xls', '.xlsx',
+        '.odp', '.ods',
+        '.odt'
     }
 
     def can_handle(self, path: Path) -> bool:
